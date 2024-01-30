@@ -1,5 +1,5 @@
 build:
-	go build -o ./bin/blog-agg ./cmd/blog-agg
+	go build -gcflags="all=-N -l" -o ./bin/blog-agg ./cmd/blog-agg 
 
 run:
 	./bin/blog-agg
