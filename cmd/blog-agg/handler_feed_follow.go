@@ -37,3 +37,12 @@ func (cfg *apiConfig) createFeedFollow(w http.ResponseWriter, r *http.Request, u
 	}
 	respondWithJSON(w, http.StatusOK, models.DBFeedFollowConvert(newFeedFollow))
 }
+
+func (cfg *apiConfig) getUsersFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollows, err := cfg.DB.GetFeedFollows(r.Context(), user.ID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("couldn't get feed follows: %v", err))
+		return
+	}
+	respondWithJSON(w, http.StatusOK, models.DBFeedFollowsConvert(feedFollows))
+}

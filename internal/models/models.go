@@ -34,7 +34,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func DbFeedConvert(dbFeed database.Feed) Feed {
+func DBFeedConvert(dbFeed database.Feed) Feed {
 	return Feed{
 		ID:        dbFeed.ID,
 		CreatedAt: dbFeed.CreatedAt,
@@ -43,6 +43,14 @@ func DbFeedConvert(dbFeed database.Feed) Feed {
 		Url:       dbFeed.Url,
 		UserID:    dbFeed.UserID,
 	}
+}
+
+func DBFeedsConvert(dbFeeds []database.Feed) []Feed {
+	feeds := make([]Feed, 0, len(dbFeeds))
+	for _, feed := range dbFeeds {
+		feeds = append(feeds, DBFeedConvert(feed))
+	}
+	return feeds
 }
 
 type FeedFollow struct {
@@ -61,4 +69,12 @@ func DBFeedFollowConvert(dbFeedFollow database.FeedFollow) FeedFollow {
 		UserID:    dbFeedFollow.UserID,
 		FeedID:    dbFeedFollow.FeedID,
 	}
+}
+
+func DBFeedFollowsConvert(dbFeedFollows []database.FeedFollow) []FeedFollow {
+	feedFollows := make([]FeedFollow, 0, len(dbFeedFollows))
+	for _, feedFollow := range dbFeedFollows {
+		feedFollows = append(feedFollows, DBFeedFollowConvert(feedFollow))
+	}
+	return feedFollows
 }
