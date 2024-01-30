@@ -12,6 +12,7 @@ func newV1Router(cfg *apiConfig) *chi.Mux {
 	router.Get("/users", cfg.middlewareAuth(cfg.getUserByApiKey))
 
 	router.Post("/feeds", cfg.middlewareAuth(cfg.createFeed))
+	router.Get("/feeds", cfg.getAllFeeds)
 
 	return router
 }

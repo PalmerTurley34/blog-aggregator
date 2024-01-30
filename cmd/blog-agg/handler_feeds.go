@@ -40,3 +40,16 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 	}
 	respondWithJSON(w, http.StatusCreated, models.DbFeedToFeed(newFeed))
 }
+
+func (cfg *apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := cfg.DB.GetAllFeeds(r.Context())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("error fetching feeds: %v", err))
+		return
+	}
+	respFeeds := make([]models.Feed, 0, len(feeds))
+	for _, feed := range feeds {
+		respFeeds = append(respFeeds, models.DbFeedToFeed(feed))
+	}
+	respondWithJSON(w, http.StatusOK, respFeeds)
+}
