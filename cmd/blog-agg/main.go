@@ -19,7 +19,14 @@ func main() {
 	godotenv.Load()
 
 	port := os.Getenv("PORT")
-	dbURL := os.Getenv("DB_CONN")
+	dbURL := os.Getenv("DB_URL")
+
+	if port == "" {
+		log.Fatal("PORT not found in environments")
+	}
+	if dbURL == "" {
+		log.Fatal("DB_URL not found in environment")
+	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {

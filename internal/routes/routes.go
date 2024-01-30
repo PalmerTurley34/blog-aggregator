@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/PalmerTurley34/blog-aggregator/internal/database"
+	"github.com/PalmerTurley34/blog-aggregator/internal/models"
 	"github.com/PalmerTurley34/blog-aggregator/internal/responses"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -21,6 +23,7 @@ func NewV1Router(cfg *ApiConfig) *chi.Mux {
 	router.Get("/readiness", getReadiness)
 	router.Get("/err", getErr)
 	router.Post("/users", cfg.createUser)
+	router.Get("/users", cfg.getUserByApiKey)
 
 	return router
 }
@@ -44,7 +47,7 @@ func (cfg *ApiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err != nil {
-		responses.WithError(w, http.StatusBadRequest, fmt.Sprintf("Cannot decode JSON body: %v", err.Error()))
+		responses.WithError(w, http.StatusBadRequest, fmt.Sprintf("Cannot decode JSON body: %v", err))
 	}
 	newUser, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 		ID:        uuid.New(),
@@ -56,8 +59,27 @@ func (cfg *ApiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		responses.WithError(
 			w,
 			http.StatusInternalServerError,
-			fmt.Sprintf("Error creating new user: %v", err.Error()))
+			fmt.Sprintf("Error creating new user: %v", err))
 		return
 	}
-	responses.WithJSON(w, http.StatusCreated, newUser)
+	responses.WithJSON(w, http.StatusCreated, models.DBUserToUser(newUser))
+}
+
+func (cfg *ApiConfig) getUserByApiKey(w http.ResponseWriter, r *http.Request) {
+	apiKey := r.Header.Get("Authorization")
+	if apiKey == "" {
+		responses.WithError(w, http.StatusUnauthorized, "Authorization header is not present")
+		return
+	}
+	apiKey, found := strings.CutPrefix(apiKey, "ApiKey ")
+	if !found {
+		responses.WithError(w, http.StatusUnauthorized, "Authorization header must be ApiKey")
+		return
+	}
+	user, err := cfg.DB.GetUserByApiKey(r.Context(), apiKey)
+	if err != nil {
+		responses.WithError(w, http.StatusInternalServerError, fmt.Sprintf("error fetching user from database: %v", err))
+		return
+	}
+	responses.WithJSON(w, http.StatusOK, models.DBUserToUser(user))
 }
