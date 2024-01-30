@@ -38,7 +38,7 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 			fmt.Sprintf("Error creating feed: %v", err))
 		return
 	}
-	respondWithJSON(w, http.StatusCreated, models.DbFeedToFeed(newFeed))
+	respondWithJSON(w, http.StatusCreated, models.DbFeedConvert(newFeed))
 }
 
 func (cfg *apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (cfg *apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
 	}
 	respFeeds := make([]models.Feed, 0, len(feeds))
 	for _, feed := range feeds {
-		respFeeds = append(respFeeds, models.DbFeedToFeed(feed))
+		respFeeds = append(respFeeds, models.DbFeedConvert(feed))
 	}
 	respondWithJSON(w, http.StatusOK, respFeeds)
 }

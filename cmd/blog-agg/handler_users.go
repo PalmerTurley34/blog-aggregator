@@ -35,9 +35,9 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("Error creating new user: %v", err))
 		return
 	}
-	respondWithJSON(w, http.StatusCreated, models.DBUserToUser(newUser))
+	respondWithJSON(w, http.StatusCreated, models.DBUserConvert(newUser))
 }
 
 func (cfg *apiConfig) getUserByApiKey(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, http.StatusOK, models.DBUserToUser(user))
+	respondWithJSON(w, http.StatusOK, models.DBUserConvert(user))
 }

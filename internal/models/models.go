@@ -15,7 +15,7 @@ type User struct {
 	ApiKey    string    `json:"api_key"`
 }
 
-func DBUserToUser(dbUser database.User) User {
+func DBUserConvert(dbUser database.User) User {
 	return User{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
@@ -34,7 +34,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func DbFeedToFeed(dbFeed database.Feed) Feed {
+func DbFeedConvert(dbFeed database.Feed) Feed {
 	return Feed{
 		ID:        dbFeed.ID,
 		CreatedAt: dbFeed.CreatedAt,
@@ -42,5 +42,23 @@ func DbFeedToFeed(dbFeed database.Feed) Feed {
 		Name:      dbFeed.Name,
 		Url:       dbFeed.Url,
 		UserID:    dbFeed.UserID,
+	}
+}
+
+type FeedFollow struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	UserID    uuid.UUID `json:"user_id"`
+	FeedID    uuid.UUID `json:"feed_id"`
+}
+
+func DBFeedFollowConvert(dbFeedFollow database.FeedFollow) FeedFollow {
+	return FeedFollow{
+		ID:        dbFeedFollow.ID,
+		CreatedAt: dbFeedFollow.CreatedAt,
+		UpdatedAt: dbFeedFollow.UpdatedAt,
+		UserID:    dbFeedFollow.UserID,
+		FeedID:    dbFeedFollow.FeedID,
 	}
 }
