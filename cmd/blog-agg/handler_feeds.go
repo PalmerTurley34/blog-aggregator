@@ -38,7 +38,25 @@ func (cfg *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user da
 			fmt.Sprintf("Error creating feed: %v", err))
 		return
 	}
-	respondWithJSON(w, http.StatusCreated, models.DBFeedConvert(newFeed))
+	newFeedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    newFeed.ID,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("counldn't create feed follow: %v", err))
+		return
+	}
+	type response struct {
+		Feed       models.Feed       `json:"feed"`
+		FeedFollow models.FeedFollow `json:"feed_follow"`
+	}
+	respondWithJSON(w, http.StatusCreated, response{
+		Feed:       models.DBFeedConvert(newFeed),
+		FeedFollow: models.DBFeedFollowConvert(newFeedFollow),
+	})
 }
 
 func (cfg *apiConfig) getAllFeeds(w http.ResponseWriter, r *http.Request) {
