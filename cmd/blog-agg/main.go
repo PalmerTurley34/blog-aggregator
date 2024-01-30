@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/PalmerTurley34/blog-aggregator/internal/database"
 	"github.com/go-chi/chi/v5"
@@ -52,5 +53,6 @@ func main() {
 		Addr:    ":" + port,
 	}
 	fmt.Println("Server listening on port:", port)
+	go startScraping(dbQueries, 2, time.Minute)
 	server.ListenAndServe()
 }
