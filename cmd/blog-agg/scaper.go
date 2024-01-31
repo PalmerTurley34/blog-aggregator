@@ -2,20 +2,19 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/PalmerTurley34/blog-aggregator/internal/database"
+	"github.com/google/uuid"
 )
 
-func startScraping(
-	db *database.Queries,
-	concurrency int,
-	timeBetweenRequests time.Duration,
-) {
-	log.Printf("Starting scraping every %v. Goroutines: %v", timeBetweenRequests, concurrency)
-	ticker := time.NewTicker(timeBetweenRequests)
+func startScraping(db *database.Queries, concurrency int, scrapeDuration time.Duration) {
+	log.Printf("Starting scraping every %v. Goroutines: %v", scrapeDuration, concurrency)
+	ticker := time.NewTicker(scrapeDuration)
 	for ; ; <-ticker.C {
 		feeds, err := db.GetNextFeedsToFetch(
 			context.Background(),
@@ -49,7 +48,30 @@ func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 	}
 
 	for _, item := range rssFeed.Channel.Item {
-		log.Println("Found post:", item.Title, "on feed:", feed.Name)
+		dbPubDate := sql.NullTime{}
+		pubDate, err := time.Parse(time.RFC1123, item.PubDate)
+		if err != nil {
+			log.Printf("Error parsing date: %v, %v", item.PubDate, err)
+		} else {
+			dbPubDate.Time = pubDate
+			dbPubDate.Valid = true
+		}
+		_, err = db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now().UTC(),
+			UpdatedAt:   time.Now().UTC(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: item.Description,
+			PublishedAt: dbPubDate,
+			FeedID:      feed.ID,
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key") {
+				continue
+			}
+			log.Printf("Error creating post: %v", err)
+		}
 	}
 	log.Printf("Feed %v collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
 }

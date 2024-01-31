@@ -26,22 +26,24 @@ func DBUserConvert(dbUser database.User) User {
 }
 
 type Feed struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name"`
-	Url       string    `json:"url"`
-	UserID    uuid.UUID `json:"user_id"`
+	ID            uuid.UUID  `json:"id"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	Name          string     `json:"name"`
+	Url           string     `json:"url"`
+	UserID        uuid.UUID  `json:"user_id"`
+	LastFetchedAt *time.Time `json:"last_fetched_at"`
 }
 
 func DBFeedConvert(dbFeed database.Feed) Feed {
 	return Feed{
-		ID:        dbFeed.ID,
-		CreatedAt: dbFeed.CreatedAt,
-		UpdatedAt: dbFeed.UpdatedAt,
-		Name:      dbFeed.Name,
-		Url:       dbFeed.Url,
-		UserID:    dbFeed.UserID,
+		ID:            dbFeed.ID,
+		CreatedAt:     dbFeed.CreatedAt,
+		UpdatedAt:     dbFeed.UpdatedAt,
+		Name:          dbFeed.Name,
+		Url:           dbFeed.Url,
+		UserID:        dbFeed.UserID,
+		LastFetchedAt: &dbFeed.LastFetchedAt.Time,
 	}
 }
 
