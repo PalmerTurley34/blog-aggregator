@@ -41,3 +41,16 @@ func (cfg *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 func (cfg *apiConfig) getUserByApiKey(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, http.StatusOK, models.DBUserConvert(user))
 }
+
+func (cfg *apiConfig) getPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	posts, err := cfg.DB.GetPostsByUser(r.Context(), database.GetPostsByUserParams{
+		UserID: user.ID,
+		Limit:  5,
+	})
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't get posts: %v", err))
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, models.DBPostsConvert(posts))
+}

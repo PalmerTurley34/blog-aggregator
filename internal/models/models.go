@@ -80,3 +80,35 @@ func DBFeedFollowsConvert(dbFeedFollows []database.FeedFollow) []FeedFollow {
 	}
 	return feedFollows
 }
+
+type Post struct {
+	ID          uuid.UUID  `json:"id"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"update_at"`
+	Title       string     `json:"title"`
+	Url         string     `json:"url"`
+	Description string     `json:"description"`
+	PublishedAt *time.Time `json:"published_at"`
+	FeedID      uuid.UUID  `json:"feed_id"`
+}
+
+func DBPostConvert(dbPost database.Post) Post {
+	return Post{
+		ID:          dbPost.ID,
+		CreatedAt:   dbPost.CreatedAt,
+		UpdatedAt:   dbPost.UpdatedAt,
+		Title:       dbPost.Title,
+		Url:         dbPost.Url,
+		Description: dbPost.Description,
+		PublishedAt: &dbPost.PublishedAt.Time,
+		FeedID:      dbPost.FeedID,
+	}
+}
+
+func DBPostsConvert(dbPosts []database.Post) []Post {
+	posts := make([]Post, 0, len(dbPosts))
+	for _, post := range dbPosts {
+		posts = append(posts, DBPostConvert(post))
+	}
+	return posts
+}
